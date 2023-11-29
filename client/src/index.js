@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-import './index.css';
 
 import Layout from './components/Layout';
 import ErrorPage from './pages/ErrorPage';
@@ -17,6 +16,8 @@ import CategoryPosts from './pages/CategoryPosts';
 import AuthorPosts from './pages/AuthorPosts';
 import Dashboard from './pages/Dashboard';
 import Logout from './pages/Logout';
+
+import './index.css';
 
 const router = createBrowserRouter([
   {
