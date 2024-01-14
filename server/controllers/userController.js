@@ -88,7 +88,7 @@ const loginUser = async (req, res, next) => {
 
 
 // PROFILE or GET USER DETAILS
-// POST : api/users/:id
+// GET : api/users/:id
 const getUser = async (req, res, next) => {
     try {
         //get id from url params
@@ -108,9 +108,50 @@ const getUser = async (req, res, next) => {
 
 
 
+// UPDATE USER
+// PATCH : api/users/edit-user
+const editUser = async (req, res, next) => {
+    try {
+        const { name, email, currentPassword, newPassword, newConfirmPassword } = req.body;
+        if (!name || !email || !currentPassword || !newPassword) {
+            return next(new HttpError("Fill all fields for update user!", 422));
+        }
 
-const editUser = (req, res, next) => {
-    res.json("Edit User");
+        //get user from db
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return next(new HttpError("User not found!", 403));
+        }
+
+        //make sure email not exist in db
+        const emailExist = await User.findOne({ email });
+        if (emailExist && (emailExist._id != req.user.id)) {
+            return next(new HttpError("Email is already exist!", 422));
+        }
+
+        //compare password to password in db
+        const validateUserPassword = await bcrypt.compare(currentPassword, user.password);
+        if (!validateUserPassword) {
+            return next(new HttpError("Invalid Password!", 422));
+        }
+
+        //compare new passwords
+        if (newPassword !== newConfirmPassword) {
+            return next(new HttpError("New Passwords not match!", 422));
+        }
+
+        //hash new pass
+        const salt = await bcrypt.genSalt(10);
+        const hashPassword = await bcrypt.hash(newPassword, salt);
+
+        //update user info 
+        const newInfo = await User.findByIdAndUpdate(req.user.id,
+            { name, email, password: hashPassword }, { new: true });
+
+        res.status(200).json(newInfo);
+    } catch (error) {
+        return next(new HttpError("Error when update user!"));
+    }
 };
 
 
@@ -171,7 +212,7 @@ const changeAvatar = async (req, res, next) => {
 
 
 // GET ALL USERS \ AUTHORS
-// POST : api/users/authors
+// GET : api/users/authors
 const getAuthors = async (req, res, next) => {
     try {
         //try find all user in db (with out password field)
