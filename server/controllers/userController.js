@@ -1,5 +1,8 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const path = require('path');
+const { v4: uuid } = require('uuid');
 
 const User = require("../models/userModel");
 const HttpError = require("../models/errorModel");
@@ -110,9 +113,61 @@ const editUser = (req, res, next) => {
     res.json("Edit User");
 };
 
-const changeAvatar = (req, res, next) => {
-    res.json("Change Avatar User");
+
+
+
+// CHANGE USER AVATAR
+// POST : api/users/change-avatar
+const changeAvatar = async (req, res, next) => {
+    try {
+        if (!req.files.avatar) {
+            return next(new HttpError("Choose image!", 422));
+        }
+
+        //find user in db
+        const user = await User.findById(req.user.id);
+        //delete old avatar if exists
+        if (user.avatar) {
+            fs.unlink(path.join(__dirname, '..', 'uploads', user.avatar), (err) => {
+                if (err) {
+                    return next(new HttpError(err, 422));
+                }
+            });
+        }
+
+        const { avatar } = req.files;
+        //check fil size
+        if (avatar.size > 500000) {
+            return next(new HttpError("Image is to large.. need less then 500kb..", 422));
+        }
+
+        let filename;
+        filename = avatar.name;
+        let splittedFilename = filename.split('.');
+        let newFilename = splittedFilename[0] + uuid() + '.' + splittedFilename[splittedFilename.length - 1];
+        avatar.mv(path.join(__dirname, '..', 'uploads', newFilename), async (err) => {
+            if (err) {
+                return next(new HttpError(err, 422));
+            }
+
+            const updatedAvatar = await User.findByIdAndUpdate(req.user.id, {
+                avatar: newFilename
+            }, {
+                new: true
+            });
+            if (!updatedAvatar) {
+                return next(new HttpError("Could not change avatar!", 422));
+            }
+
+            res.status(200).json(updatedAvatar);
+        });
+
+    } catch (error) {
+        return next(new HttpError("Fail to change avatar!", 422));
+    }
 };
+
+
 
 
 // GET ALL USERS \ AUTHORS
