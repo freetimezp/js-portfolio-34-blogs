@@ -82,9 +82,29 @@ const loginUser = async (req, res, next) => {
     }
 };
 
-const getUser = (req, res, next) => {
-    res.json("Profile User");
+
+
+// PROFILE or GET USER DETAILS
+// POST : api/users/:id
+const getUser = async (req, res, next) => {
+    try {
+        //get id from url params
+        const { id } = req.params;
+        //try find user in db (with out password field)
+        const user = await User.findById(id).select('-password');
+
+        if (!user) {
+            return next(new HttpError("User not found!", 422));
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        return next(new HttpError("User Profile load failed!", 422));
+    }
 };
+
+
+
 
 const editUser = (req, res, next) => {
     res.json("Edit User");
@@ -94,9 +114,21 @@ const changeAvatar = (req, res, next) => {
     res.json("Change Avatar User");
 };
 
-const getAuthors = (req, res, next) => {
-    res.json("All users or Authors");
+
+// GET ALL USERS \ AUTHORS
+// POST : api/users/authors
+const getAuthors = async (req, res, next) => {
+    try {
+        //try find all user in db (with out password field)
+        const authors = await User.find().select('-password');
+
+        res.status(200).json(authors);
+    } catch (error) {
+        return next(new HttpError("No authors were found!", 422));
+    }
 };
+
+
 
 module.exports = {
     registerUser,
