@@ -113,7 +113,17 @@ const getCatPosts = async (req, res, next) => {
 // GET AUTHOR POST
 // GET : api/posts/users/:id
 const getUserPosts = async (req, res, next) => {
-    res.json("Get all posts by user");
+    try {
+        const { id } = req.params;
+        const posts = await Post.find({ creator: id }).sort({ createdAt: -1 });
+        if (!posts || posts.length < 1) {
+            return next(new HttpError("No posts were found!", 422));
+        }
+
+        res.status(200).json(posts);
+    } catch (error) {
+        return next(new HttpError(error));
+    }
 }
 
 
