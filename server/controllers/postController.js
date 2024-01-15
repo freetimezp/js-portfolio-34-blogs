@@ -71,7 +71,20 @@ const getPosts = async (req, res, next) => {
 // GET SINGLE POST
 // GET : api/posts/:id
 const getPost = async (req, res, next) => {
-    res.json("Get single post");
+    try {
+        //get post id from url params
+        const { id } = req.params;
+        //try find post in db
+        const post = await Post.findById(id);
+
+        if (!post) {
+            return next(new HttpError("Post not found!", 422));
+        }
+
+        res.status(200).json(post);
+    } catch (error) {
+        return next(new HttpError("Post load failed!", 422));
+    }
 }
 
 
