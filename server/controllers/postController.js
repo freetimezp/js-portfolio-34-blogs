@@ -143,38 +143,41 @@ const editPost = async (req, res, next) => {
             return next(new HttpError("Please, fill all fields. Desc must be at least 12 symbols!", 422));
         }
 
-        if (!req.files) {
-            updatedPost = await Post.findByIdAndUpdate(postId, { title, category, description }, { new: true });
-        } else {
-            //get old post from db
-            const oldPost = await Post.findById(postId);
+        //check if user is creator of post
+        if (req.user.id == post.creator) {
+            if (!req.files) {
+                updatedPost = await Post.findByIdAndUpdate(postId, { title, category, description }, { new: true });
+            } else {
+                //get old post from db
+                const oldPost = await Post.findById(postId);
 
-            //delete old thumbnail from uploads
-            fs.unlink(path.join(__dirname, '..', 'uploads', oldPost.thumbnail), async (err) => {
-                if (err) {
-                    return next(new HttpError(err));
+                //delete old thumbnail from uploads
+                fs.unlink(path.join(__dirname, '..', 'uploads', oldPost.thumbnail), async (err) => {
+                    if (err) {
+                        return next(new HttpError(err));
+                    }
+                });
+
+                //upload new thumbnail
+                const { thumbnail } = req.files;
+                //check file size
+                if (thumbnail.size > 2000000) {
+                    return next(new HttpError("File size must be less than 2mb..", 422));
                 }
-            });
+                filename = thumbnail.name;
+                let splittedFilename = filename.split('.');
+                newFilename = splittedFilename[0] + uuid() + '.' + splittedFilename[splittedFilename.length - 1];
+                //move new image to uploads directory
+                thumbnail.mv(path.join(__dirname, '..', 'uploads', newFilename), async (err) => {
+                    if (err) {
+                        return next(new HttpError(err));
+                    }
+                });
 
-            //upload new thumbnail
-            const { thumbnail } = req.files;
-            //check file size
-            if (thumbnail.size > 2000000) {
-                return next(new HttpError("File size must be less than 2mb..", 422));
+                //update thumbnail in post
+                updatedPost = await Post.findByIdAndUpdate(postId,
+                    { title, category, description, thumbnail: newFilename }, { new: true });
             }
-            filename = thumbnail.name;
-            let splittedFilename = filename.split('.');
-            newFilename = splittedFilename[0] + uuid() + '.' + splittedFilename[splittedFilename.length - 1];
-            //move new image to uploads directory
-            thumbnail.mv(path.join(__dirname, '..', 'uploads', newFilename), async (err) => {
-                if (err) {
-                    return next(new HttpError(err));
-                }
-            });
-
-            //update thumbnail in post
-            updatedPost = await Post.findByIdAndUpdate(postId,
-                { title, category, description, thumbnail: newFilename }, { new: true });
         }
 
         if (!updatedPost) {
@@ -193,7 +196,37 @@ const editPost = async (req, res, next) => {
 // DELETE POST
 // DELETE : api/posts/:id
 const deletePost = async (req, res, next) => {
-    res.json("Delete post");
+    try {
+        const postId = req.params.id;
+        if (!postId) {
+            return next(new HttpError("Post unavailable", 422));
+        }
+
+        const post = await Post.findById(postId);
+        const filename = post?.thumbnail;
+
+        //check if user is creator of post
+        if (req.user.id == post.creator) {
+            //delete img from uploads folder
+            fs.unlink(path.join(__dirname, '..', 'uploads', filename), async (err) => {
+                if (err) {
+                    return next(new HttpError(err));
+                } else {
+                    await Post.findByIdAndDelete(postId);
+                    //find user and reduce posts by 1
+                    const currentUser = await User.findById(req.user.id);
+                    const userPostCount = currentUser?.posts - 1;
+                    await User.findByIdAndUpdate(req.user.id, { posts: userPostCount });
+
+                    res.status(200).json("Post was deleted..");
+                }
+            });
+        } else {
+            return next(new HttpError("You are not creator of this post.."));
+        }
+    } catch (err) {
+        return next(new HttpError(err));
+    }
 }
 
 
