@@ -54,7 +54,18 @@ const createPost = async (req, res, next) => {
 // GET POSTS
 // GET : api/posts
 const getPosts = async (req, res, next) => {
-    res.json("Get all posts");
+    try {
+        //try find all posts in db 
+        const posts = await Post.find().sort({ updatedAt: -1 });
+        if (!posts || posts.length < 1) {
+            return next(new HttpError("Posts not found", 422));
+        }
+
+        res.status(200).json(posts);
+
+    } catch (err) {
+        return next(new HttpError(err));
+    }
 }
 
 // GET SINGLE POST
