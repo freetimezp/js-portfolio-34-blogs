@@ -92,7 +92,20 @@ const getPost = async (req, res, next) => {
 // GET POSTS BY CATEGORY
 // GET : api/posts/categories/:category
 const getCatPosts = async (req, res, next) => {
-    res.json("Get posts by category");
+    try {
+        //get category from url
+        const { category } = req.params;
+        //try find post by category
+        const catPosts = await Post.find({ category }).sort({ updatedAt: -1 });
+
+        if (!catPosts || catPosts.length < 1) {
+            return next(new HttpError("Posts by this category not found!", 422));
+        }
+
+        res.status(200).json(catPosts);
+    } catch (error) {
+        return next(new HttpError("Posts by this category search failed!", 422));
+    }
 }
 
 
