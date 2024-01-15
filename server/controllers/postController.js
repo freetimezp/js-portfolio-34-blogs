@@ -131,7 +131,60 @@ const getUserPosts = async (req, res, next) => {
 // EDIT POST
 // PATCH : api/posts/:id
 const editPost = async (req, res, next) => {
-    res.json("Edit post");
+    try {
+        let filename;
+        let newFilename;
+        let updatedPost;
+        const postId = req.params.id;
+        let { title, category, description } = req.body;
+
+        //check if fields are empty
+        if (!title || !category || description.length < 12) {
+            return next(new HttpError("Please, fill all fields. Desc must be at least 12 symbols!", 422));
+        }
+
+        if (!req.files) {
+            updatedPost = await Post.findByIdAndUpdate(postId, { title, category, description }, { new: true });
+        } else {
+            //get old post from db
+            const oldPost = await Post.findById(postId);
+
+            //delete old thumbnail from uploads
+            fs.unlink(path.join(__dirname, '..', 'uploads', oldPost.thumbnail), async (err) => {
+                if (err) {
+                    return next(new HttpError(err));
+                }
+            });
+
+            //upload new thumbnail
+            const { thumbnail } = req.files;
+            //check file size
+            if (thumbnail.size > 2000000) {
+                return next(new HttpError("File size must be less than 2mb..", 422));
+            }
+            filename = thumbnail.name;
+            let splittedFilename = filename.split('.');
+            newFilename = splittedFilename[0] + uuid() + '.' + splittedFilename[splittedFilename.length - 1];
+            //move new image to uploads directory
+            thumbnail.mv(path.join(__dirname, '..', 'uploads', newFilename), async (err) => {
+                if (err) {
+                    return next(new HttpError(err));
+                }
+            });
+
+            //update thumbnail in post
+            updatedPost = await Post.findByIdAndUpdate(postId,
+                { title, category, description, thumbnail: newFilename }, { new: true });
+        }
+
+        if (!updatedPost) {
+            return next(new HttpError("Error while updating post!", 422));
+        }
+
+        res.status(200).json(updatedPost);
+    } catch (err) {
+        return next(new HttpError(err));
+    }
 }
 
 
