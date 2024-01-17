@@ -19,11 +19,12 @@ import Dashboard from './pages/Dashboard';
 import Logout from './pages/Logout';
 
 import './index.css';
+import UserProvider from './context/userContext';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Layout />,
+    element: <UserProvider><Layout /></UserProvider>,
     errorElement: <ErrorPage />,
     children: [
       { index: true, element: <Home /> },
