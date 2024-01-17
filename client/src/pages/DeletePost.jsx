@@ -1,14 +1,15 @@
 import React from 'react';
 
 import { useCheckUserLogged } from '../context/userContext';
+import { Link } from 'react-router-dom';
 
 const DeletePost = () => {
     useCheckUserLogged();
 
     return (
-        <div>
-
-        </div>
+        <Link to={`/posts/werwer/delete`} className='btn sm danger'>
+            Delete
+        </Link>
     );
 };
 
