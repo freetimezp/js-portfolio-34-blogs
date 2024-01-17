@@ -269,7 +269,8 @@ input, select, textarea {
 .post__thumbnail {
     border-radius: var(--radius-3);
     overflow: hidden;
-    height: 16rem;
+    max-height: 16rem;
+    object-fit: cover;
 }
 
 .post__content {
