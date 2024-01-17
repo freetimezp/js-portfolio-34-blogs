@@ -6,6 +6,7 @@ import Avatar2 from '../images/avatar2.jpg';
 import Avatar3 from '../images/avatar3.jpg';
 import Avatar4 from '../images/avatar4.jpg';
 import Avatar5 from '../images/avatar5.jpg';
+import { useCheckUserLogged } from '../context/userContext';
 
 const authorData = [
     { id: 1, avatar: Avatar1, name: 'Ernest Achiever', posts: 3 },
@@ -17,6 +18,8 @@ const authorData = [
 
 const Authors = () => {
     const [authors, setAuthors] = useState(authorData);
+
+    useCheckUserLogged();
 
     return (
         <section className='authors'>

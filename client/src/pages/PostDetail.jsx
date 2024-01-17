@@ -1,11 +1,13 @@
 import React from 'react';
-
-import PostAuthor from '../components/PostAuthor';
 import { Link } from 'react-router-dom';
 
+import PostAuthor from '../components/PostAuthor';
 import Thumbnail from '../images/blog22.jpg';
+import { useCheckUserLogged } from '../context/userContext';
 
 const PostDetail = () => {
+    useCheckUserLogged();
+
     return (
         <section className='post-detail'>
             <div className="container post-detail__container">

@@ -3,8 +3,12 @@ import React, { useState } from 'react';
 import { DUMMY_POSTS } from '../data';
 import { Link } from 'react-router-dom';
 
+import { useCheckUserLogged } from '../context/userContext';
+
 const Dashboard = () => {
     const [posts, setPosts] = useState(DUMMY_POSTS);
+
+    useCheckUserLogged();
 
     return (
         <section className='dashboard'>

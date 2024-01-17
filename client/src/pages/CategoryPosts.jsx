@@ -3,9 +3,12 @@ import React, { useState } from 'react';
 import { DUMMY_POSTS } from '../data';
 
 import PostItem from '../components/PostItem';
+import { useCheckUserLogged } from '../context/userContext';
 
 const CategoryPosts = () => {
     const [posts, setPosts] = useState(DUMMY_POSTS);
+
+    useCheckUserLogged();
 
     return (
         <section>

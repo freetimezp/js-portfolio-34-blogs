@@ -1,6 +1,10 @@
 import React from 'react';
 
+import { useCheckUserLogged } from '../context/userContext';
+
 const DeletePost = () => {
+    useCheckUserLogged();
+
     return (
         <div>
 
