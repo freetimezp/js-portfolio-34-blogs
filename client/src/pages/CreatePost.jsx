@@ -5,8 +5,6 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../context/userContext';
 
-import { useCheckUserLogged } from '../context/userContext';
-
 const CreatePost = () => {
     const [error, setError] = useState('');
     const [title, setTitle] = useState('');
@@ -66,7 +64,7 @@ const CreatePost = () => {
             const response = await axios.post(`${process.env.REACT_APP_BASE_URL}/posts`,
                 postData, { withCredentials: true, headers: { Authorization: `Bearer ${token}` } });
 
-            if (response.status == 201) {
+            if (response.status === 201) {
                 return navigate('/');
             }
         } catch (err) {

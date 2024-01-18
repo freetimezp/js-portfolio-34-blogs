@@ -35,7 +35,7 @@ const PostDetail = () => {
         };
 
         getPost();
-    }, []);
+    }, [id]);
 
     if (isLoading) {
         return <Loader />;
@@ -52,7 +52,7 @@ const PostDetail = () => {
                         <PostAuthor creator={post?.creator} createdAt={post?.createdAt} />
                         {currentUser?.id === post?.creator && (
                             <div className="post-detail__buttons">
-                                <Link to={`/posts/${post?._id}/edit`} className='btn sm primary'>
+                                <Link to={`/posts/${id}/edit`} className='btn sm primary'>
                                     Edit
                                 </Link>
                                 <DeletePost postId={id} />

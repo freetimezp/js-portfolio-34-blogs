@@ -138,6 +138,8 @@ const editPost = async (req, res, next) => {
         const postId = req.params.id;
         let { title, category, description } = req.body;
 
+        const post = await Post.findById(postId);
+
         //check if fields are empty
         if (!title || !category || description.length < 12) {
             return next(new HttpError("Please, fill all fields. Desc must be at least 12 symbols!", 422));
