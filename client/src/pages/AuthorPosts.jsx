@@ -28,7 +28,7 @@ const AuthorPosts = () => {
         };
 
         fetchPosts();
-    }, []);
+    }, [id]);
 
     if (isLoading) {
         return <Loader />
@@ -47,7 +47,6 @@ const AuthorPosts = () => {
                             category={category}
                             creator={creator}
                             createdAt={createdAt}
-
                         />
                     ))}
                 </div>
