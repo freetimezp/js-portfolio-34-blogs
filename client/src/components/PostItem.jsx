@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import PostAuthor from './PostAuthor';
@@ -16,7 +16,7 @@ const PostItem = ({ postId, title, description, category, creator, thumbnail, cr
                 <Link to={`/posts/${postId}`}>
                     <h3>{shortTitle}</h3>
                 </Link>
-                <p>{shortDescription}</p>
+                <p dangerouslySetInnerHTML={{ __html: shortDescription }}></p>
                 <div className="post__footer">
                     <PostAuthor creator={creator} createdAt={createdAt} />
                     <Link to={`/posts/categories/${category}`} className='btn category'>

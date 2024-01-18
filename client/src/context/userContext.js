@@ -24,6 +24,8 @@ export const useCheckUserLogged = () => {
     const { currentUser } = useContext(UserContext);
     const token = currentUser?.token;
 
+    //console.log(token);
+
     //redirect to login page if any user who is not logged in
     useEffect(() => {
         if (!token) {
