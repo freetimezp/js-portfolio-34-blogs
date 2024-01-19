@@ -1,14 +1,47 @@
-import React, { useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 
-import { DUMMY_POSTS } from '../data';
-import { Link } from 'react-router-dom';
-
-import { useCheckUserLogged } from '../context/userContext';
+import Loader from '../components/Loader';
+import { UserContext } from '../context/userContext';
 
 const Dashboard = () => {
-    const [posts, setPosts] = useState(DUMMY_POSTS);
+    const [posts, setPosts] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
-    useCheckUserLogged();
+    const { id } = useParams();
+    const navigate = useNavigate();
+
+    const { currentUser } = useContext(UserContext);
+    const token = currentUser?.token;
+
+    useEffect(() => {
+        if (!token) {
+            navigate('/login');
+        }
+    }, []);
+
+    useEffect(() => {
+        const fetchPosts = async () => {
+            setIsLoading(true);
+
+            try {
+                const response = await axios.get(`${process.env.REACT_APP_BASE_URL}/posts/users/${id}`,
+                    { withCredentials: true, headers: { Authorization: `Bearer ${token}` } });
+                setPosts(response?.data);
+            } catch (err) {
+                console.log(err);
+            }
+
+            setIsLoading(false);
+        };
+
+        fetchPosts();
+    }, [id]);
+
+    if (isLoading) {
+        return <Loader />
+    }
 
     return (
         <section className='dashboard'>
