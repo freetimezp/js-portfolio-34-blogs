@@ -112,7 +112,7 @@ const getUser = async (req, res, next) => {
 // PATCH : api/users/edit-user
 const editUser = async (req, res, next) => {
     try {
-        const { name, email, currentPassword, newPassword, newConfirmPassword } = req.body;
+        const { name, email, currentPassword, newPassword, confirmNewPassword } = req.body;
         if (!name || !email || !currentPassword || !newPassword) {
             return next(new HttpError("Fill all fields for update user!", 422));
         }
@@ -136,7 +136,7 @@ const editUser = async (req, res, next) => {
         }
 
         //compare new passwords
-        if (newPassword !== newConfirmPassword) {
+        if (newPassword != confirmNewPassword) {
             return next(new HttpError("New Passwords not match!", 422));
         }
 

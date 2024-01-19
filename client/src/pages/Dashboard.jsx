@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import Loader from '../components/Loader';
 import { UserContext } from '../context/userContext';
+import DeletePost from './DeletePost';
 
 const Dashboard = () => {
     const [posts, setPosts] = useState([]);
@@ -51,22 +52,20 @@ const Dashboard = () => {
                         <article key={post.id} className='dashboard__post'>
                             <div className="dashboard__post-info">
                                 <div className="dashboard__post-thumbnail">
-                                    <img src={post.thumbnail} alt="avatar" />
+                                    <img src={`${process.env.REACT_APP_ASSETS_URL}/uploads/${post.thumbnail}`} alt="avatar" />
                                 </div>
                                 <h5>
                                     {post.title}
                                 </h5>
                             </div>
                             <div className="dashboard__post-actions">
-                                <Link to={`/posts/${post.id}`} className='btn sm'>
+                                <Link to={`/posts/${post._id}`} className='btn sm'>
                                     View
                                 </Link>
-                                <Link to={`/posts/${post.id}/edit`} className='btn sm primary'>
+                                <Link to={`/posts/${post._id}/edit`} className='btn sm primary'>
                                     Edit
                                 </Link>
-                                <Link to={`/posts/${post.id}/delete`} className='btn sm danger'>
-                                    Delete
-                                </Link>
+                                <DeletePost postId={post._id} />
                             </div>
                         </article>
                     ))}
